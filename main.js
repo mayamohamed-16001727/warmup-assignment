@@ -1,6 +1,7 @@
 const fs = require("fs");
 
 // ============================================================
+<<<<<<< HEAD
 // HELPERS
 // ============================================================
 
@@ -69,10 +70,20 @@ function getShiftDuration(startTime, endTime) {
     let endSec = timeToSeconds(endTime);
     if (endSec < startSec) endSec += SECONDS_IN_DAY;
     return secondsToTime(endSec - startSec);
+=======
+// Function 1: getShiftDuration(startTime, endTime)
+// startTime: (typeof string) formatted as hh:mm:ss am or hh:mm:ss pm
+// endTime: (typeof string) formatted as hh:mm:ss am or hh:mm:ss pm
+// Returns: string formatted as h:mm:ss
+// ============================================================
+function getShiftDuration(startTime, endTime) {
+    // TODO: Implement this function
+>>>>>>> 8a765d403e953fd0a62015cae724900a27a27480
 }
 
 // ============================================================
 // Function 2: getIdleTime(startTime, endTime)
+<<<<<<< HEAD
 // Delivery hours: 8:00 AM to 10:00 PM
 // ============================================================
 function getIdleTime(startTime, endTime) {
@@ -94,17 +105,35 @@ function getIdleTime(startTime, endTime) {
     }
 
     return secondsToTime(idleSec);
+=======
+// startTime: (typeof string) formatted as hh:mm:ss am or hh:mm:ss pm
+// endTime: (typeof string) formatted as hh:mm:ss am or hh:mm:ss pm
+// Returns: string formatted as h:mm:ss
+// ============================================================
+function getIdleTime(startTime, endTime) {
+    // TODO: Implement this function
+>>>>>>> 8a765d403e953fd0a62015cae724900a27a27480
 }
 
 // ============================================================
 // Function 3: getActiveTime(shiftDuration, idleTime)
+<<<<<<< HEAD
 // ============================================================
 function getActiveTime(shiftDuration, idleTime) {
     return secondsToTime(durationToSeconds(shiftDuration) - durationToSeconds(idleTime));
+=======
+// shiftDuration: (typeof string) formatted as h:mm:ss
+// idleTime: (typeof string) formatted as h:mm:ss
+// Returns: string formatted as h:mm:ss
+// ============================================================
+function getActiveTime(shiftDuration, idleTime) {
+    // TODO: Implement this function
+>>>>>>> 8a765d403e953fd0a62015cae724900a27a27480
 }
 
 // ============================================================
 // Function 4: metQuota(date, activeTime)
+<<<<<<< HEAD
 // Normal quota: 8h 24m | Eid (Apr 10-30 2025): 6h
 // ============================================================
 function metQuota(date, activeTime) {
@@ -117,10 +146,19 @@ function metQuota(date, activeTime) {
 
     const quota = (d >= eidStart && d <= eidEnd) ? eidQuota : normalQuota;
     return durationToSeconds(activeTime) >= quota;
+=======
+// date: (typeof string) formatted as yyyy-mm-dd
+// activeTime: (typeof string) formatted as h:mm:ss
+// Returns: boolean
+// ============================================================
+function metQuota(date, activeTime) {
+    // TODO: Implement this function
+>>>>>>> 8a765d403e953fd0a62015cae724900a27a27480
 }
 
 // ============================================================
 // Function 5: addShiftRecord(textFile, shiftObj)
+<<<<<<< HEAD
 // ============================================================
 function addShiftRecord(textFile, shiftObj) {
     const { driverID, driverName, date, startTime, endTime } = shiftObj;
@@ -157,10 +195,19 @@ function addShiftRecord(textFile, shiftObj) {
 
     fs.writeFileSync(textFile, lines.join("\n") + "\n", { encoding: "utf8" });
     return newRecord;
+=======
+// textFile: (typeof string) path to shifts text file
+// shiftObj: (typeof object) has driverID, driverName, date, startTime, endTime
+// Returns: object with 10 properties or empty object {}
+// ============================================================
+function addShiftRecord(textFile, shiftObj) {
+    // TODO: Implement this function
+>>>>>>> 8a765d403e953fd0a62015cae724900a27a27480
 }
 
 // ============================================================
 // Function 6: setBonus(textFile, driverID, date, newValue)
+<<<<<<< HEAD
 // Finds the row matching driverID + date and updates hasBonus
 // ============================================================
 function setBonus(textFile, driverID, date, newValue) {
@@ -176,10 +223,21 @@ function setBonus(textFile, driverID, date, newValue) {
     });
 
     fs.writeFileSync(textFile, updated.join("\n") + "\n", { encoding: "utf8" });
+=======
+// textFile: (typeof string) path to shifts text file
+// driverID: (typeof string)
+// date: (typeof string) formatted as yyyy-mm-dd
+// newValue: (typeof boolean)
+// Returns: nothing (void)
+// ============================================================
+function setBonus(textFile, driverID, date, newValue) {
+    // TODO: Implement this function
+>>>>>>> 8a765d403e953fd0a62015cae724900a27a27480
 }
 
 // ============================================================
 // Function 7: countBonusPerMonth(textFile, driverID, month)
+<<<<<<< HEAD
 // Returns count of records where hasBonus=true for given driver+month
 // Returns -1 if driverID not found at all
 // ============================================================
@@ -200,10 +258,20 @@ function countBonusPerMonth(textFile, driverID, month) {
     }
 
     return driverFound ? count : -1;
+=======
+// textFile: (typeof string) path to shifts text file
+// driverID: (typeof string)
+// month: (typeof string) formatted as mm or m
+// Returns: number (-1 if driverID not found)
+// ============================================================
+function countBonusPerMonth(textFile, driverID, month) {
+    // TODO: Implement this function
+>>>>>>> 8a765d403e953fd0a62015cae724900a27a27480
 }
 
 // ============================================================
 // Function 8: getTotalActiveHoursPerMonth(textFile, driverID, month)
+<<<<<<< HEAD
 // Sums all activeTime values for driver in given month (including day-off days)
 // Returns string formatted as hhh:mm:ss
 // ============================================================
@@ -221,10 +289,20 @@ function getTotalActiveHoursPerMonth(textFile, driverID, month) {
     }
 
     return secondsToTime(totalSeconds);
+=======
+// textFile: (typeof string) path to shifts text file
+// driverID: (typeof string)
+// month: (typeof number)
+// Returns: string formatted as hhh:mm:ss
+// ============================================================
+function getTotalActiveHoursPerMonth(textFile, driverID, month) {
+    // TODO: Implement this function
+>>>>>>> 8a765d403e953fd0a62015cae724900a27a27480
 }
 
 // ============================================================
 // Function 9: getRequiredHoursPerMonth(textFile, rateFile, bonusCount, driverID, month)
+<<<<<<< HEAD
 // Sums required daily quota for each worked day (excluding driver's day off)
 // Reduces total by 2h per bonus
 // Returns string formatted as hhh:mm:ss
@@ -275,10 +353,22 @@ function getRequiredHoursPerMonth(textFile, rateFile, bonusCount, driverID, mont
     if (totalSeconds < 0) totalSeconds = 0;
 
     return secondsToTime(totalSeconds);
+=======
+// textFile: (typeof string) path to shifts text file
+// rateFile: (typeof string) path to driver rates text file
+// bonusCount: (typeof number) total bonuses for given driver per month
+// driverID: (typeof string)
+// month: (typeof number)
+// Returns: string formatted as hhh:mm:ss
+// ============================================================
+function getRequiredHoursPerMonth(textFile, rateFile, bonusCount, driverID, month) {
+    // TODO: Implement this function
+>>>>>>> 8a765d403e953fd0a62015cae724900a27a27480
 }
 
 // ============================================================
 // Function 10: getNetPay(driverID, actualHours, requiredHours, rateFile)
+<<<<<<< HEAD
 // Calculates net pay after deductions based on tier allowance
 // ============================================================
 function getNetPay(driverID, actualHours, requiredHours, rateFile) {
@@ -322,6 +412,16 @@ function getNetPay(driverID, actualHours, requiredHours, rateFile) {
     const salaryDeduction      = billableFullHours * deductionRatePerHour;
 
     return basePay - salaryDeduction;
+=======
+// driverID: (typeof string)
+// actualHours: (typeof string) formatted as hhh:mm:ss
+// requiredHours: (typeof string) formatted as hhh:mm:ss
+// rateFile: (typeof string) path to driver rates text file
+// Returns: integer (net pay)
+// ============================================================
+function getNetPay(driverID, actualHours, requiredHours, rateFile) {
+    // TODO: Implement this function
+>>>>>>> 8a765d403e953fd0a62015cae724900a27a27480
 }
 
 module.exports = {

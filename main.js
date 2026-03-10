@@ -1,3 +1,4 @@
+const fs = require("fs");
 
 
 // ============================================================
@@ -158,6 +159,7 @@ function addShiftRecord(textFile, shiftObj) {
     fs.writeFileSync(textFile, lines.join("\n") + "\n", { encoding: "utf8" });
     return newRecord;
 }
+
 
 // ============================================================
 // Function 6: setBonus(textFile, driverID, date, newValue)

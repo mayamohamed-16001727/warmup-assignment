@@ -160,11 +160,181 @@ function addShiftRecord(textFile, shiftObj) {
 }
 
 
+// ============================================================
+// Function 6: setBonus(textFile, driverID, date, newValue)
+// Finds the row matching driverID + date and updates hasBonus
+// ============================================================
+function setBonus(textFile, driverID, date, newValue) {
+    const lines = readLines(textFile);
+
+    const updated = lines.map(line => {
+        const cols = line.split(",");
+        if (cols[0].trim() === driverID && cols[2].trim() === date) {
+            cols[9] = newValue.toString();
+            return cols.join(",");
+        }
+        return line;
+    });
+
+    fs.writeFileSync(textFile, updated.join("\n") + "\n", { encoding: "utf8" });
+}
+
+// ============================================================
+// Function 7: countBonusPerMonth(textFile, driverID, month)
+// Returns count of records where hasBonus=true for given driver+month
+// Returns -1 if driverID not found at all
+// ============================================================
+function countBonusPerMonth(textFile, driverID, month) {
+    const lines = readLines(textFile);
+    const targetMonth = parseInt(month); // normalise "04" and "4" both to 4
+
+    let driverFound = false;
+    let count = 0;
+
+    for (const line of lines) {
+        const record = parseLine(line);
+        if (record.driverID !== driverID) continue;
+        driverFound = true;
+
+        const recordMonth = parseInt(record.date.split("-")[1]);
+        if (recordMonth === targetMonth && record.hasBonus) count++;
+    }
+
+    return driverFound ? count : -1;
+}
+
+// ============================================================
+// Function 8: getTotalActiveHoursPerMonth(textFile, driverID, month)
+// Sums all activeTime values for driver in given month (including day-off days)
+// Returns string formatted as hhh:mm:ss
+// ============================================================
+function getTotalActiveHoursPerMonth(textFile, driverID, month) {
+    const lines = readLines(textFile);
+    const targetMonth = parseInt(month);
+    let totalSeconds = 0;
+
+    for (const line of lines) {
+        const record = parseLine(line);
+        if (record.driverID !== driverID) continue;
+        const recordMonth = parseInt(record.date.split("-")[1]);
+        if (recordMonth !== targetMonth) continue;
+        totalSeconds += durationToSeconds(record.activeTime);
+    }
+
+    return secondsToTime(totalSeconds);
+}
+
+// ============================================================
+// Function 9: getRequiredHoursPerMonth(textFile, rateFile, bonusCount, driverID, month)
+// Sums required daily quota for each worked day (excluding driver's day off)
+// Reduces total by 2h per bonus
+// Returns string formatted as hhh:mm:ss
+// ============================================================
+function getRequiredHoursPerMonth(textFile, rateFile, bonusCount, driverID, month) {
+    const shiftLines = readLines(textFile);
+    const rateLines  = readLines(rateFile);
+
+    // Get driver's dayOff from rateFile
+    let dayOff = null;
+    for (const line of rateLines) {
+        const cols = line.split(",");
+        if (cols[0].trim() === driverID) {
+            dayOff = cols[1].trim(); // e.g. "Friday"
+            break;
+        }
+    }
+
+    const DAY_NAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+    const targetMonth = parseInt(month);
+
+    const normalQuota = 8 * 3600 + 24 * 60; // 30240 sec
+    const eidQuota    = 6 * 3600;            // 21600 sec
+    const eidStart    = new Date("2025-04-10");
+    const eidEnd      = new Date("2025-04-30");
+
+    let totalSeconds = 0;
+
+    for (const line of shiftLines) {
+        const record = parseLine(line);
+        if (record.driverID !== driverID) continue;
+        const recordMonth = parseInt(record.date.split("-")[1]);
+        if (recordMonth !== targetMonth) continue;
+
+        const d = new Date(record.date);
+        const dayName = DAY_NAMES[d.getDay()];
+
+        // Skip day-off days
+        if (dayOff && dayName === dayOff) continue;
+
+        // Pick quota based on Eid period
+        const quota = (d >= eidStart && d <= eidEnd) ? eidQuota : normalQuota;
+        totalSeconds += quota;
+    }
+
+    // Each bonus reduces required hours by 2h
+    totalSeconds -= bonusCount * 2 * 3600;
+    if (totalSeconds < 0) totalSeconds = 0;
+
+    return secondsToTime(totalSeconds);
+}
+
+// ============================================================
+// Function 10: getNetPay(driverID, actualHours, requiredHours, rateFile)
+// Calculates net pay after deductions based on tier allowance
+// ============================================================
+function getNetPay(driverID, actualHours, requiredHours, rateFile) {
+    const rateLines = readLines(rateFile);
+
+    let basePay = 0;
+    let tier = 0;
+
+    for (const line of rateLines) {
+        const cols = line.split(",");
+        if (cols[0].trim() === driverID) {
+            basePay = parseInt(cols[2].trim());
+            tier    = parseInt(cols[3].trim());
+            break;
+        }
+    }
+
+    // Allowed missing hours per tier (no deduction up to this many hours)
+    const allowedMissingHours = { 1: 50, 2: 20, 3: 10, 4: 3 };
+    const allowed = allowedMissingHours[tier] || 0;
+
+    const actualSec   = durationToSeconds(actualHours);
+    const requiredSec = durationToSeconds(requiredHours);
+
+    // No deduction if actual >= required
+    if (actualSec >= requiredSec) return basePay;
+
+    const missingSec   = requiredSec - actualSec;
+    const missingHours = missingSec / 3600; // in hours (may be fractional)
+
+    // Subtract the allowed missing hours
+    const billableHours = missingHours - allowed;
+
+    // If within allowance, no deduction
+    if (billableHours <= 0) return basePay;
+
+    // Only full hours count
+    const billableFullHours = Math.floor(billableHours);
+
+    const deductionRatePerHour = Math.floor(basePay / 185);
+    const salaryDeduction      = billableFullHours * deductionRatePerHour;
+
+    return basePay - salaryDeduction;
+}
+
 module.exports = {
     getShiftDuration,
     getIdleTime,
     getActiveTime,
     metQuota,
     addShiftRecord,
-   
+    setBonus,
+    countBonusPerMonth,
+    getTotalActiveHoursPerMonth,
+    getRequiredHoursPerMonth,
+    getNetPay
 };
+

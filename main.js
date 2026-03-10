@@ -1,6 +1,8 @@
 const fs = require("fs");
 
-
+// ============================================================
+// HELPERS
+// ============================================================
 
 // Convert "h:mm:ss am/pm" to total seconds
 function timeToSeconds(timeStr) {

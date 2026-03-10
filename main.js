@@ -159,7 +159,6 @@ function addShiftRecord(textFile, shiftObj) {
     return newRecord;
 }
 
-
 // ============================================================
 // Function 6: setBonus(textFile, driverID, date, newValue)
 // Finds the row matching driverID + date and updates hasBonus
